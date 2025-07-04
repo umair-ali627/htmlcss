@@ -12,12 +12,17 @@ jobs:
     - name: Checkout the code
       uses: actions/checkout@v4
 
+    - name: Prepare SSH key file
+      run: |
+        echo "${{ secrets.EC2_KEY }}" > key.pem
+        chmod 600 key.pem
+
     - name: Copy files to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_KEY }}
+        key_path: ./key.pem
         source: "*"
         target: "~/htmlcss-temp"
 
@@ -26,7 +31,7 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_KEY }}
+        key_path: ./key.pem
         script: |
           sudo rm -rf /var/www/portfolio/*
           sudo mv ~/htmlcss-temp/* /var/www/portfolio/
